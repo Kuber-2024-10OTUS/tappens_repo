@@ -15,16 +15,8 @@ spec:
       labels:
         type: nginx-homework
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: role
-                    operator: In
-                    values:
-                      - kubernetes-controllers
-                      - kubernetes-intro
+      nodeSelector:
+          homework: "true"
       containers:
       - name: nginx
         image: nginx
