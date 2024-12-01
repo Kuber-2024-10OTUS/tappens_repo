@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-volumes
+  namespace: homework
+  labels:
+    theme: kubernetes-volumes
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      type: nginx-homework
+  template:
+    metadata:
+      labels:
+        type: nginx-homework
+        theme: kubernetes-volumes
+    spec:
+      nodeSelector:
+          homework: "true"
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 8000
+          name: hw-nginx-port
+        readinessProbe:
+          httpGet:
+            path: /index.html
+            port: hw-nginx-port
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          failureThreshold: 10
+        volumeMounts:
+        - name: shared
+          mountPath: /homework
+        - name: nginx-conf
+          mountPath: /etc/nginx
+        - name: files
+          mountPath: /homework/conf
+      initContainers:
+      - name: prepare-indexhtml
+        image: busybox:1.35.0
+        command:
+        - wget
+        - "-O"
+        - "/init/index.html"
+        - https://filesamples.com/samples/code/html/sample2.html
+        volumeMounts:
+        - name: shared
+          mountPath: "/init"
+      volumes:
+      - name: shared
+        persistentVolumeClaim:
+          claimName: kubernetes-volumes-specific-class
+      - name: nginx-conf
+        configMap:
+          name: nginx-conf
+          items:
+            - key: nginx.conf
+              path: nginx.conf
+      - name: files
+        configMap:
+          name: kubernetes-volumes
+          items:
+              - path: file
+                key: key
+              - path: file
+                key: multiline
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
