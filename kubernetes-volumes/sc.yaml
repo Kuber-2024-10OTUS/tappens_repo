@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "false"
+  labels:
+    addonmanager.kubernetes.io/mode: EnsureExists
+  name: otus-homework
+  resourceVersion: "306"
+#  uid: f442b7a1-51e9-40b8-b12e-fb898ea283db
+provisioner: k8s.io/minikube-hostpath
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
